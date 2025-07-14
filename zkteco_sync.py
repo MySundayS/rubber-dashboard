@@ -206,9 +206,9 @@ class ZKTecoGoogleSheets:
             return False
 
 def main():
-    DEVICE_IP = "192.168.1.3"
+    DEVICE_IP = "192.168.1.2"
     DEVICE_PORT = 4370
-    CREDENTIALS_FILE = "C:/Users/Arsuae01/Desktop/Employee/credentials.json"
+    CREDENTIALS_FILE = "C:/Users/Arsuae01/Desktop/project/credentials.json"
     SPREADSHEET_NAME = "ZKTeco Attendance"
     WORKSHEET_NAME = "Attendance"
 
