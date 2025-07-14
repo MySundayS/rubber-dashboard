@@ -221,9 +221,9 @@ def main():
         print("❌ Data sync failed!")
 
 def run_continuous_sync():
-    DEVICE_IP = "192.168.1.3"
+    DEVICE_IP = "192.168.1.2"
     DEVICE_PORT = 4370
-    CREDENTIALS_FILE = "C:/Users/Arsuae01/Desktop/Employee/credentials.json"
+    CREDENTIALS_FILE = "C:/Users/Arsuae01/Desktop/project/credentials.json"
     SPREADSHEET_NAME = "ZKTeco Attendance"
     WORKSHEET_NAME = "Attendance"
     SYNC_INTERVAL = 300
@@ -254,7 +254,7 @@ def run_continuous_sync():
 
 def test_connection():
     from zk import ZK
-    zk = ZK("192.168.1.3", port=4370, timeout=30)
+    zk = ZK("192.168.1.2", port=4370, timeout=30)
     try:
         conn = zk.connect()
         if conn:
