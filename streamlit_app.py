@@ -20,22 +20,32 @@ st.set_page_config(
 st.markdown("""
 <style>
     .metric-card {
-        background-color: #f0f2f6;
+        background-color: #F9FFF9;
         padding: 20px;
         border-radius: 10px;
         text-align: center;
+        border: 1px solid #C8E6C9;
+        box-shadow: 0 2px 8px rgba(139, 195, 139, 0.1);
     }
     .big-number {
         font-size: 48px;
         font-weight: bold;
-        color: #1f77b4;
+        color: #2E7D32;
     }
     .status-online {
-        color: #00cc00;
+        color: #4CAF50;
         font-weight: bold;
     }
     .status-offline {
-        color: #cc0000;
+        color: #E57373;
+        font-weight: bold;
+    }
+    .status-warning {
+        color: #FFB74D;
+        font-weight: bold;
+    }
+    .status-info {
+        color: #64B5F6;
         font-weight: bold;
     }
 </style>
