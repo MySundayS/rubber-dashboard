@@ -418,6 +418,73 @@ st.markdown("""
     border-color: #81C784 !important;
   }
 
+  /* Status Colors - Soft & Eye-Friendly */
+  .status-success {
+    background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+    color: #2E7D32;
+    border-left: 3px solid #4CAF50;
+  }
+  
+  .status-warning {
+    background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+    color: #F57F17;
+    border-left: 3px solid #FFB300;
+  }
+  
+  .status-error {
+    background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+    color: #C62828;
+    border-left: 3px solid #E53935;
+  }
+  
+  .status-info {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    color: #1565C0;
+    border-left: 3px solid #2196F3;
+  }
+
+  /* Dark Mode Support */
+  @media (prefers-color-scheme: dark) {
+    .stApp {
+      background: linear-gradient(to bottom, #2C3E50 0%, #34495E 100%);
+      color: #ECEFF1;
+    }
+    
+    section[data-testid="stSidebar"] {
+      background: linear-gradient(180deg, #37474F 0%, #455A64 100%);
+      border-right: 2px solid #546E7A;
+    }
+    
+    .header-container {
+      background: linear-gradient(135deg, #455A64 0%, #546E7A 50%, #607D8B 100%);
+      border: 1px solid #607D8B;
+      color: #ECEFF1;
+    }
+    
+    .header-title {
+      color: #81C784 !important;
+    }
+    
+    .metric-card-compact {
+      background: linear-gradient(135deg, #37474F 0%, #455A64 100%);
+      border: 1px solid #546E7A;
+      color: #ECEFF1;
+    }
+    
+    .metric-value-small {
+      color: #81C784;
+    }
+    
+    /* All text elements in dark mode */
+    p, span, div, label {
+      color: #ECEFF1;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      color: #81C784 !important;
+    }
+  }
+
   /* Responsive Design */
   @media (max-width: 768px) {
     .header-title {
@@ -435,6 +502,58 @@ st.markdown("""
     
     .metric-label-small {
       font-size: 0.7rem;
+    }
+    
+    .stApp {
+      background: linear-gradient(to bottom, #F7F9F7 0%, #F0F4F7 100%);
+    }
+  }
+
+  /* Accessibility Improvements */
+  .stButton > button:focus,
+  .stTabs [data-baseweb="tab"]:focus {
+    outline: 2px solid #4CAF50;
+    outline-offset: 2px;
+  }
+  
+  /* High Contrast Support */
+  @media (prefers-contrast: high) {
+    .stApp {
+      background: #FFFFFF;
+      color: #000000;
+    }
+    
+    .header-container {
+      background: #F0F0F0;
+      border: 2px solid #000000;
+    }
+    
+    .metric-card-compact {
+      background: #FFFFFF;
+      border: 2px solid #000000;
+    }
+    
+    .stButton > button {
+      background: #000000;
+      color: #FFFFFF;
+      border: 2px solid #000000;
+    }
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    .metric-card-compact,
+    .employee-card,
+    .stButton > button,
+    .stTabs [data-baseweb="tab"] {
+      transition: none;
+    }
+    
+    .metric-card-compact:hover,
+    .employee-card:hover,
+    .stButton > button:hover,
+    .stTabs [data-baseweb="tab"]:hover {
+      transform: none;
     }
   }
 </style>

@@ -37,7 +37,15 @@ st.markdown("""
         font-weight: bold;
     }
     .status-offline {
-        color: #F44336;
+        color: #E57373;
+        font-weight: bold;
+    }
+    .status-warning {
+        color: #FFB74D;
+        font-weight: bold;
+    }
+    .status-info {
+        color: #64B5F6;
         font-weight: bold;
     }
 </style>
