@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลิตาการยาง - ระบบคำนวณราคายางพารา</title>
+    
+    <!-- Fallback Fonts and Icons (No external dependencies) -->
+    <style>
+        /* Font Awesome Icons replacement with Unicode */
+        .fas, .fa {
+            font-family: Arial, sans-serif;
+            font-style: normal;
+        }
+        .fa-leaf:before { content: '🌿'; }
+        .fa-filter:before { content: '⚙️'; }
+        .fa-calendar:before { content: '📅'; }
+        .fa-building:before { content: '🏢'; }
+        .fa-users:before { content: '👥'; }
+        .fa-sync-alt:before { content: '🔄'; }
+        .fa-weight:before { content: '⚖️'; }
+        .fa-money-bill-wave:before { content: '💰'; }
+        .fa-chart-line:before { content: '📊'; }
+        .fa-chart-bar:before { content: '📊'; }
+        .fa-chart-pie:before { content: '🥧'; }
+        .fa-search:before { content: '🔍'; }
+        .fa-table:before { content: '📋'; }
+        .fa-download:before { content: '📥'; }
+        .fa-hashtag:before { content: '#'; }
+        .fa-user:before { content: '👤'; }
+        .fa-dollar-sign:before { content: '💵'; }
+        .fa-money-bill:before { content: '💸'; }
+        .fa-calculator:before { content: '🧮'; }
+        .fa-arrow-up:before { content: '⬆️'; }
+        .fa-check-circle:before { content: '✅'; }
+        .fa-exclamation-circle:before { content: '⚠️'; }
+        .fa-info-circle:before { content: 'ℹ️'; }
+    </style>
+    
+    <style>
+        :root {
+            --primary-color: #FFB6C1;
+            --secondary-color: #DDA0DD;
+            --accent-color: #FF69B4;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --error-color: #F44336;
+            --info-color: #2196F3;
+            --text-primary: #2C3E50;
+            --text-secondary: #34495E;
+            --background: #FFF9F3;
+            --card-background: #FFFFFF;
+            --border-color: #FFE0EC;
+            --shadow: 0 4px 12px rgba(255, 182, 193, 0.15);
+            --shadow-hover: 0 8px 24px rgba(255, 182, 193, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', 'Kanit', sans-serif;
+            background: linear-gradient(to bottom, var(--background) 0%, #F5F3FF 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Mobile-First Responsive Design */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Sticky Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, #FFE5E5 0%, #E8E5FF 50%, #E5F3FF 100%);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-background);
+            border-top: 2px solid var(--border-color);
+            padding: 0.5rem;
+            z-index: 1001;
+            box-shadow: 0 -4px 12px rgba(255, 182, 193, 0.15);
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 48px;
+            min-height: 48px;
+            justify-content: center;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .nav-item span {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #F5F5F5;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .card-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, var(--card-background) 0%, #FFF5F5 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .metric-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Form Controls - Mobile Optimized */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #FFF9FC;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            min-height: 48px;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Buttons - Touch Friendly */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            min-height: 48px;
+            min-width: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease;
+        }
+
+        .btn:active:before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 105, 180, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #98FB98 0%, #90EE90 100%);
+            color: #1B5E20;
+            box-shadow: 0 4px 12px rgba(144, 238, 144, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(144, 238, 144, 0.4);
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+        }
+
+        /* Data Table - Mobile Responsive */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--card-background);
+            margin-bottom: 1.5rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #F5F5F5;
+            color: var(--text-primary);
+        }
+
+        .table th {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #FFF5F8;
+        }
+
+        .table tbody tr:hover {
+            background: #FFE0EC;
+            cursor: pointer;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            min-height: 300px;
+        }
+
+        /* Simple Chart Styles */
+        .simple-chart {
+            min-height: 200px;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 1rem 0;
+        }
+
+        .chart-bar {
+            background: linear-gradient(to top, var(--primary-color), var(--secondary-color));
+            min-width: 60px;
+            margin: 0 5px;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+            align-items: center;
+        }
+
+        .chart-bar:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .chart-bar-label {
+            position: absolute;
+            bottom: -30px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .chart-bar-value {
+            position: absolute;
+            top: -25px;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto;
+            background: conic-gradient(
+                var(--primary-color) 0deg 120deg,
+                var(--secondary-color) 120deg 240deg,
+                var(--accent-color) 240deg 360deg
+            );
+            box-shadow: 0 4px 12px rgba(255, 182, 193, 0.3);
+        }
+
+        .pie-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--card-background);
+            transform: translate(-50%, -50%);
+        }
+
+        .pie-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 0.5rem;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-hover);
+            z-index: 1002;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error-color);
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--info-color);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            display: none;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 24px rgba(255, 105, 180, 0.5);
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            background: var(--card-background);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .metric-card {
+                padding: 1rem;
+                min-height: 100px;
+            }
+
+            .metric-value {
+                font-size: 1.4rem;
+            }
+
+            .metric-label {
+                font-size: 0.8rem;
+            }
+
+            .card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .card-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .mobile-nav {
+                display: block;
+            }
+
+            .fab {
+                display: block;
+                bottom: 100px;
+            }
+
+            body {
+                padding-bottom: 80px;
+            }
+
+            .toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            /* Single column layout for mobile */
+            .form-row {
+                display: block !important;
+            }
+
+            .form-row .form-group {
+                margin-right: 0 !important;
+            }
+
+            /* Stack charts vertically on mobile */
+            .charts-grid {
+                display: block !important;
+            }
+
+            .charts-grid .chart-container {
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .mobile-nav,
+            .fab,
+            .btn {
+                display: none !important;
+            }
+
+            .card {
+                break-inside: avoid;
+            }
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Form Row for Desktop */
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sticky Header -->
+    <div class="header">
+        <h1><i class="fas fa-leaf"></i> ลิตาการยาง Dashboard</h1>
+        <p>ระบบคำนวณราคายางพาราแบบเรียลไทม์</p>
+    </div>
+
+    <div class="container">
+        <!-- Date and Filter Section -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-filter"></i>
+                <h2>ตัวกรองข้อมูล</h2>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="selectedDate">
+                        <i class="fas fa-calendar"></i> เลือกวันที่
+                    </label>
+                    <input type="date" id="selectedDate" class="form-input" />
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="selectedBranch">
+                        <i class="fas fa-building"></i> เลือกสาขา
+                    </label>
+                    <select id="selectedBranch" class="form-select">
+                        <option value="">ทั้งหมด</option>
+                        <option value="สาขา1">สาขา 1</option>
+                        <option value="สาขา2">สาขา 2</option>
+                        <option value="สาขา3">สาขา 3</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="selectedGroup">
+                        <i class="fas fa-users"></i> เลือกกอง
+                    </label>
+                    <select id="selectedGroup" class="form-select">
+                        <option value="">ทั้งหมด</option>
+                        <option value="กอง1">กอง 1</option>
+                        <option value="กอง2">กอง 2</option>
+                        <option value="กอง3">กอง 3</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> รีเฟรช
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-weight"></i>
+                </div>
+                <div class="metric-value" id="totalWeight">0</div>
+                <div class="metric-label">กิโลกรัม</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="metric-value" id="totalAmount">฿0</div>
+                <div class="metric-label">จำนวนเงินรวม</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="metric-value" id="totalCustomers">0</div>
+                <div class="metric-label">ลูกค้าทั้งหมด</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="metric-value" id="avgPrice">฿0</div>
+                <div class="metric-label">ราคาเฉลี่ย</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-bar"></i> จำนวนยางตามสาขา</h3>
+                <div id="branchChart" class="simple-chart"></div>
+            </div>
+            
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> สัดส่วนจำนวนเงิน</h3>
+                <div id="pieChart" class="simple-chart"></div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-search"></i>
+                <h2>ค้นหาลูกค้า</h2>
+            </div>
+            
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="กรอกชื่อลูกค้าที่ต้องการค้นหา..." oninput="filterCustomers()">
+            </div>
+        </div>
+
+        <!-- Customer Data Table -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table"></i>
+                <h2>รายการลูกค้า</h2>
+                <button class="btn btn-success" onclick="exportData()" style="margin-left: auto;">
+                    <i class="fas fa-download"></i> ดาวน์โหลดข้อมูล
+                </button>
+            </div>
+            
+            <div class="table-container">
+                <table class="table" id="customerTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> ลำดับ</th>
+                            <th><i class="fas fa-user"></i> ชื่อลูกค้า</th>
+                            <th><i class="fas fa-weight"></i> จำนวนยาง (กก.)</th>
+                            <th><i class="fas fa-dollar-sign"></i> ราคา</th>
+                            <th><i class="fas fa-money-bill"></i> จำนวนเงิน</th>
+                            <th><i class="fas fa-building"></i> สาขา</th>
+                            <th><i class="fas fa-users"></i> กอง</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <div class="nav-items">
+            <div class="nav-item active" onclick="showSection('overview')">
+                <i class="fas fa-chart-pie"></i>
+                <span>ภาพรวม</span>
+            </div>
+            <div class="nav-item" onclick="showSection('customers')">
+                <i class="fas fa-users"></i>
+                <span>ลูกค้า</span>
+            </div>
+            <div class="nav-item" onclick="showSection('calculate')">
+                <i class="fas fa-calculator"></i>
+                <span>คำนวณ</span>
+            </div>
+            <div class="nav-item" onclick="showSection('reports')">
+                <i class="fas fa-chart-bar"></i>
+                <span>รายงาน</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Sample data - in real implementation, this would come from API
+        let rubberData = [
+            { id: 1, name: 'นางสาวสมใจ จันทร์เพ็ญ', weight: 145.5, price: 52.50, amount: 7638.75, branch: 'สาขา1', group: 'กอง1', date: '2025-01-25' },
+            { id: 2, name: 'นายวิชัย กิตติศักดิ์', weight: 235.2, price: 53.20, amount: 12512.64, branch: 'สาขา1', group: 'กอง2', date: '2025-01-25' },
+            { id: 3, name: 'นางอรพิณ สุขเจริญ', weight: 178.8, price: 51.80, amount: 9262.24, branch: 'สาขา2', group: 'กอง1', date: '2025-01-25' },
+            { id: 4, name: 'นายสมชาย ใจดี', weight: 198.3, price: 52.90, amount: 10500.07, branch: 'สาขา2', group: 'กอง3', date: '2025-01-25' },
+            { id: 5, name: 'นางสาวมาลี ดอกไม้', weight: 167.4, price: 53.50, amount: 8955.90, branch: 'สาขา3', group: 'กอง2', date: '2025-01-25' },
+            { id: 6, name: 'นายประสิทธิ์ เก่งกิจ', weight: 212.7, price: 52.30, amount: 11124.21, branch: 'สาขา1', group: 'กอง1', date: '2025-01-25' },
+            { id: 7, name: 'นางวิไล สวยงาม', weight: 156.9, price: 54.20, amount: 8504.28, branch: 'สาขา3', group: 'กอง3', date: '2025-01-25' },
+            { id: 8, name: 'นายเจริญ รุ่งเรือง', weight: 189.5, price: 51.70, amount: 9797.65, branch: 'สาขา2', group: 'กอง2', date: '2025-01-25' }
+        ];
+
+        let filteredData = [...rubberData];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            document.getElementById('selectedDate').value = new Date().toISOString().split('T')[0];
+            
+            // Initialize data
+            updateDisplay();
+            
+            // Add touch feedback to buttons
+            addTouchFeedback();
+            
+            // Setup real-time input validation
+            setupValidation();
+        });
+
+        // Update all display elements
+        function updateDisplay() {
+            updateMetrics();
+            updateCustomerTable();
+            updateSimpleCharts();
+        }
+
+        // Update metrics cards
+        function updateMetrics() {
+            const totalWeight = filteredData.reduce((sum, item) => sum + item.weight, 0);
+            const totalAmount = filteredData.reduce((sum, item) => sum + (item.amount || item.weight * item.price), 0);
+            const totalCustomers = filteredData.length;
+            const avgPrice = filteredData.length > 0 ? filteredData.reduce((sum, item) => sum + item.price, 0) / filteredData.length : 0;
+
+            document.getElementById('totalWeight').textContent = totalWeight.toLocaleString('th-TH', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            document.getElementById('totalAmount').textContent = '฿' + totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            document.getElementById('totalCustomers').textContent = totalCustomers.toLocaleString('th-TH');
+            document.getElementById('avgPrice').textContent = '฿' + avgPrice.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Update customer table
+        function updateCustomerTable() {
+            const tbody = document.getElementById('customerTableBody');
+            tbody.innerHTML = '';
+
+            filteredData.forEach((customer, index) => {
+                const amount = customer.amount || customer.weight * customer.price;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${customer.name}</strong></td>
+                    <td>${customer.weight.toLocaleString('th-TH', { minimumFractionDigits: 1 })}</td>
+                    <td>฿${customer.price.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
+                    <td>฿${amount.toLocaleString('th-TH', { minimumFractionDigits: 0 })}</td>
+                    <td><span class="badge">${customer.branch}</span></td>
+                    <td><span class="badge">${customer.group}</span></td>
+                `;
+                row.addEventListener('click', () => showCustomerDetails(customer));
+                tbody.appendChild(row);
+            });
+
+            // Add animation
+            tbody.classList.add('fade-in');
+        }
+
+        // Create simple CSS-based charts
+        function updateSimpleCharts() {
+            updateBranchChart();
+            updatePieChart();
+        }
+
+        function updateBranchChart() {
+            const branchData = {};
+            filteredData.forEach(item => {
+                if (!branchData[item.branch]) {
+                    branchData[item.branch] = { weight: 0, amount: 0 };
+                }
+                branchData[item.branch].weight += item.weight;
+                branchData[item.branch].amount += (item.amount || item.weight * item.price);
+            });
+
+            const branchChart = document.getElementById('branchChart');
+            const maxWeight = Math.max(...Object.values(branchData).map(d => d.weight));
+            
+            branchChart.innerHTML = '';
+            branchChart.className = 'simple-chart';
+
+            Object.entries(branchData).forEach(([branch, data]) => {
+                const barHeight = maxWeight > 0 ? (data.weight / maxWeight) * 150 : 0;
+                
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = `${barHeight}px`;
+                
+                const label = document.createElement('div');
+                label.className = 'chart-bar-label';
+                label.textContent = branch;
+                
+                const value = document.createElement('div');
+                value.className = 'chart-bar-value';
+                value.textContent = `${data.weight.toLocaleString('th-TH', { maximumFractionDigits: 1 })} กก.`;
+                
+                bar.appendChild(label);
+                bar.appendChild(value);
+                branchChart.appendChild(bar);
+            });
+        }
+
+        function updatePieChart() {
+            const branchData = {};
+            filteredData.forEach(item => {
+                if (!branchData[item.branch]) {
+                    branchData[item.branch] = { weight: 0, amount: 0 };
+                }
+                branchData[item.branch].weight += item.weight;
+                branchData[item.branch].amount += (item.amount || item.weight * item.price);
+            });
+
+            const pieChart = document.getElementById('pieChart');
+            pieChart.innerHTML = '';
+
+            // Create pie chart
+            const pieContainer = document.createElement('div');
+            pieContainer.className = 'pie-chart';
+            
+            // Create legend
+            const legend = document.createElement('div');
+            legend.className = 'pie-legend';
+            
+            const colors = ['var(--primary-color)', 'var(--secondary-color)', 'var(--accent-color)', '#F8BBD0'];
+            const branches = Object.keys(branchData);
+            
+            branches.forEach((branch, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = colors[index % colors.length];
+                
+                const text = document.createElement('span');
+                text.textContent = `${branch} (฿${branchData[branch].amount.toLocaleString('th-TH', { maximumFractionDigits: 0 })})`;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(text);
+                legend.appendChild(legendItem);
+            });
+
+            pieChart.appendChild(pieContainer);
+            pieChart.appendChild(legend);
+        }
+
+        // Filter customers based on search input
+        function filterCustomers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedBranch = document.getElementById('selectedBranch').value;
+            const selectedGroup = document.getElementById('selectedGroup').value;
+            const selectedDate = document.getElementById('selectedDate').value;
+
+            filteredData = rubberData.filter(customer => {
+                const matchesSearch = customer.name.toLowerCase().includes(searchTerm);
+                const matchesBranch = !selectedBranch || customer.branch === selectedBranch;
+                const matchesGroup = !selectedGroup || customer.group === selectedGroup;
+                const matchesDate = !selectedDate || customer.date === selectedDate;
+                
+                return matchesSearch && matchesBranch && matchesGroup && matchesDate;
+            });
+
+            updateDisplay();
+            showToast('ข้อมูลถูกกรองแล้ว', 'info');
+        }
+
+        // Refresh data
+        function refreshData() {
+            showLoading();
+            
+            // Simulate API call
+            setTimeout(() => {
+                filterCustomers();
+                hideLoading();
+                showToast('ข้อมูลได้รับการอัปเดตแล้ว', 'success');
+            }, 1000);
+        }
+
+        // Export data to CSV
+        function exportData() {
+            const csvContent = "data:text/csv;charset=utf-8-sig," 
+                + "ลำดับ,ชื่อลูกค้า,จำนวนยาง,ราคา,จำนวนเงิน,สาขา,กอง\n"
+                + filteredData.map((customer, index) => {
+                    const amount = customer.amount || customer.weight * customer.price;
+                    return `${index + 1},"${customer.name}",${customer.weight},${customer.price},${amount},"${customer.branch}","${customer.group}"`;
+                }).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `rubber_data_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('ไฟล์ถูกดาวน์โหลดแล้ว', 'success');
+        }
+
+        // Show customer details (for mobile tap)
+        function showCustomerDetails(customer) {
+            const amount = customer.amount || customer.weight * customer.price;
+            const details = `
+                ชื่อลูกค้า: ${customer.name}
+                จำนวนยาง: ${customer.weight.toLocaleString('th-TH')} กก.
+                ราคา: ฿${customer.price.toLocaleString('th-TH')}
+                จำนวนเงิน: ฿${amount.toLocaleString('th-TH')}
+                สาขา: ${customer.branch}
+                กอง: ${customer.group}
+            `;
+            
+            if (confirm(details + '\n\nต้องการแก้ไขข้อมูลหรือไม่?')) {
+                // In real app, this would open an edit modal
+                showToast('ฟีเจอร์แก้ไขจะเปิดใช้งานเร็วๆ นี้', 'info');
+            }
+        }
+
+        // Mobile navigation
+        function showSection(section) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+
+            // In a real app, this would show different sections
+            showToast(`แสดงหน้า ${section}`, 'info');
+        }
+
+        // Scroll to top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide FAB based on scroll
+        window.addEventListener('scroll', function() {
+            const fab = document.querySelector('.fab');
+            if (window.scrollY > 300) {
+                fab.style.display = 'block';
+            } else {
+                fab.style.display = 'none';
+            }
+        });
+
+        // Toast notification system
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-${getToastIcon(type)}" style="margin-right: 0.5rem;"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function getToastIcon(type) {
+            switch(type) {
+                case 'success': return 'check-circle';
+                case 'error': return 'exclamation-circle';
+                case 'info': return 'info-circle';
+                default: return 'info-circle';
+            }
+        }
+
+        // Loading state
+        function showLoading() {
+            const metrics = document.querySelectorAll('.metric-value');
+            metrics.forEach(metric => {
+                metric.innerHTML = '<div class="loading"></div>';
+            });
+        }
+
+        function hideLoading() {
+            updateMetrics();
+        }
+
+        // Add touch feedback to buttons
+        function addTouchFeedback() {
+            document.querySelectorAll('.btn, .nav-item, .fab').forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+                
+                element.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        }
+
+        // Setup real-time validation
+        function setupValidation() {
+            const inputs = document.querySelectorAll('.form-input, .form-select');
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.value.trim() !== '') {
+                        this.style.borderColor = 'var(--success-color)';
+                        setTimeout(() => {
+                            this.style.borderColor = '';
+                        }, 1000);
+                    }
+                });
+            });
+        }
+
+        // Add event listeners for filter changes
+        document.getElementById('selectedBranch').addEventListener('change', filterCustomers);
+        document.getElementById('selectedGroup').addEventListener('change', filterCustomers);
+        document.getElementById('selectedDate').addEventListener('change', filterCustomers);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + R to refresh
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                refreshData();
+            }
+            
+            // Escape to clear search
+            if (e.key === 'Escape') {
+                document.getElementById('searchInput').value = '';
+                filterCustomers();
+            }
+        });
+
+        // Swipe gestures for mobile navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe left - next section
+                    showToast('ปัดไปหน้าถัดไป', 'info');
+                } else {
+                    // Swipe right - previous section
+                    showToast('ปัดกลับหน้าที่แล้ว', 'info');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
